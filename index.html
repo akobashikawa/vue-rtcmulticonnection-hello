@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Vue RTCMultiConnection Hello</title>
+
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css"
+    />
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css"
+    />
+
+    <style>
+      .video-box video {
+        width: 100%;
+      }
+      .local-video-box video {
+        border-radius: 15px 0;
+      }
+      .remote-video-box video {
+        border-radius: 0 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <b-container fluid="md">
+        <h2>Vue RTCMultiConnection Hello</h2>
+
+        <b-input-group prepend="Room">
+          <b-form-input type="text" placeholder="Room ID" v-model="roomId"></b-form-input>
+          <b-input-group-append>
+            <b-button variant="primary" @click="openOrJoinRoom"> Entrar </b-button>
+          </b-input-group-append>
+        </b-input-group>
+
+        <b-row class="mt-4" v-show="showRoom">
+          <b-col md="4">
+            <h3>Local</h3>
+            <div class="video-box local-video-box" ref="localVideoBox"></div>
+          </b-col>
+          <b-col md="8">
+            <h3>Remoto</h3>
+            <div class="video-box remote-video-box" ref="remoteVideoBox"></div>
+          </b-col>
+        </b-row>
+
+      </b-container>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <script src="//unpkg.com/vue@latest/dist/vue.min.js"></script>
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+
+    <script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
+    <script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
+
+    <script>
+      // https://www.rtcmulticonnection.org/docs/getting-started/
+      var app = new Vue({
+        el: "#app",
+
+        data: {
+          connection: null,
+          roomId: "algun-id-unico",
+          showRoom: false,
+        },
+
+        methods: {
+          init() {
+            const self = this;
+            console.log("refs", this.$refs);
+
+            const connection = (this.connection = new RTCMultiConnection());
+            connection.socketURL =
+              "https://rtcmulticonnection.herokuapp.com:443/";
+            connection.session = {
+              audio: false,
+              video: true,
+            };
+
+            connection.onstream = function (event) {
+              const video = event.mediaElement;
+
+              if (event.type === "local") {
+                console.log('Video: local');
+                self.$refs["localVideoBox"].appendChild(video);
+              }
+              
+              if (event.type === "remote") {
+                console.log('Video: remote');
+                self.$refs["remoteVideoBox"].appendChild(video);
+              }
+
+            };
+
+            this.roomId = connection.token();
+          },
+
+          openOrJoinRoom() {
+            this.showRoom = true;
+            this.connection.openOrJoin(this.roomId);
+          },
+        },
+
+        mounted() {
+          console.log("mounted");
+          this.init();
+        },
+      });
+    </script>
+  </body>
+</html>
