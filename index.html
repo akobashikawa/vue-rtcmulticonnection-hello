@@ -80,7 +80,6 @@
         methods: {
           init() {
             const self = this;
-            console.log("refs", this.$refs);
 
             const connection = (this.connection = new RTCMultiConnection());
             // connection.socketURL = "https://rtcmulticonnection.herokuapp.com:443/";
@@ -105,14 +104,24 @@
 
             };
 
-            this.roomId = connection.token();
+            const roomId = self.getQueryParam('roomid');
+            console.log('getQueryParam roomId', roomId);
+            
+            this.roomId = roomId || connection.token();
           },
 
           openOrJoinRoom() {
             this.showRoom = true;
             this.connection.openOrJoin(this.roomId);
           },
-        },
+
+          getQueryParam(name) {
+            const paramsString = window.location.href.split('?');
+            const searchParams = new URLSearchParams(paramsString[1]);
+            return searchParams.has('roomid') ? searchParams.get('roomid') : false;
+          },
+
+        },  
 
         mounted() {
           console.log("mounted");
