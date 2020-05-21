@@ -52,12 +52,6 @@
         </b-input-group>
 
         <b-row class="mt-4">
-          <b-col md="6" v-for="(video, index) of videos" :key="index">
-            <video autoplay="true" playsinline="true" controls="true" muted="false" volume="1" :id="video.id" :srcObject="video.srcObject"></video>
-          </b-col>
-        </b-row>
-
-        <b-row class="mt-4">
           <b-col md="4" ref="videoBox" class="video-box">
           </b-col>
         </b-row>
