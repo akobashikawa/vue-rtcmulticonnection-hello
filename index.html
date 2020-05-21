@@ -51,17 +51,18 @@
           </b-input-group-append>
         </b-input-group>
 
-        <b-row class="mt-4" v-show="showRoom">
-          <b-col md="4">
-            <h3>Local</h3>
-            <div class="video-box local-video-box" ref="localVideoBox"></div>
-          </b-col>
-          <b-col md="8">
-            <h3>Remoto</h3>
-            <div class="video-box remote-video-box" ref="remoteVideoBox"></div>
+        <b-row class="mt-4">
+          <b-col md="6" v-for="(video, index) of videos" :key="index">
+            <video autoplay="true" playsinline="true" controls="true" muted="false" volume="1" :id="video.id" :srcObject="video.srcObject"></video>
           </b-col>
         </b-row>
 
+        <b-row class="mt-4">
+          <b-col md="4" ref="videoBox" class="video-box">
+          </b-col>
+        </b-row>
+
+        <pre>{{ videos }}</pre>
       </b-container>
     </div>
 
@@ -84,11 +85,17 @@
             {value: 'https://rtmulticonnection.herokuapp.com:443/', text: 'https://rtcmulticonnection.herokuapp.com:443/'},
             {value: 'https://rulokoba.me:9001/', text: 'https://rulokoba.me:9001/'},
           ],
-          socketURL: 'https://rtmulticonnection.herokuapp.com:443/',
+          // socketURL: 'https://rtmulticonnection.herokuapp.com:443/',
+          socketURL: 'https://rulokoba.me:9001/',
           connection: null,
           roomId: "algun-id-unico",
-          showRoom: false,
-          showRemote: false,
+          videos: [],
+        },
+
+        watch: {
+          videos: function(newValue) {
+            console.log('watch', newValue);
+          },
         },
 
         methods: {
@@ -99,29 +106,38 @@
             const self = this;
 
             const connection = (this.connection = new RTCMultiConnection());
+            
             // connection.socketURL = "https://rtcmulticonnection.herokuapp.com:443/";
             connection.socketURL = this.socketURL;
+            
             connection.session = {
-              audio: false,
+              audio: true,
               video: true,
             };
+            
             // connection.sdpConstraints.mandatory = {
             //     OfferToReceiveAudio: true,
             //     OfferToReceiveVideo: true
             // };
 
             connection.onstream = function (event) {
-              const video = event.mediaElement;
+              console.log('onstream');
 
-              if (event.type === "local") {
-                console.log('Video: local');
-                self.$refs["localVideoBox"].appendChild(video);
-              }
+              const video = event.mediaElement;
+              console.log('onstream video', video, video.id);
+              self.videos.push(video);
+              self.$refs["videoBox"].appendChild(video);
+              console.log('onstream videos', self.videos);
+
+              // if (event.type === "local") {
+              //   console.log('Video: local');
+              //   self.$refs["localVideoBox"].appendChild(video);
+              // }
               
-              if (event.type === "remote") {
-                console.log('Video: remote');
-                self.$refs["remoteVideoBox"].appendChild(video);
-              }
+              // if (event.type === "remote") {
+              //   console.log('Video: remote');
+              //   self.$refs["remoteVideoBox"].appendChild(video);
+              // }
 
             };
 
@@ -132,7 +148,6 @@
           },
 
           openOrJoinRoom() {
-            this.showRoom = true;
             this.connection.openOrJoin(this.roomId);
           },
 
