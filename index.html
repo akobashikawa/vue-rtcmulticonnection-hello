@@ -37,10 +37,14 @@
         <h2>Vue RTCMultiConnection Hello</h2>
 
         <b-input-group prepend="SocketURL">
-          <b-select v-model="socketURL" :options="servers"></b-select>
+          <b-select v-model="socketURL" :options="servers" :disabled="connection"></b-select>
+          <b-input-group-append>
+            <b-button variant="primary" @click="connect" :disabled="connection"> Conectar </b-button>
+            <b-button variant="danger" @click="reset" v-show="connection"> Reset </b-button>
+          </b-input-group-append>
         </b-input-group>
 
-        <b-input-group prepend="Room">
+        <b-input-group prepend="Room" v-if="connection">
           <b-form-input type="text" placeholder="Room ID" v-model="roomId"></b-form-input>
           <b-input-group-append>
             <b-button variant="primary" @click="openOrJoinRoom"> Entrar </b-button>
@@ -88,7 +92,10 @@
         },
 
         methods: {
-          init() {
+          reset() {
+            window.location.reload(true);
+          },
+          connect() {
             const self = this;
 
             const connection = (this.connection = new RTCMultiConnection());
@@ -98,6 +105,10 @@
               audio: false,
               video: true,
             };
+            // connection.sdpConstraints.mandatory = {
+            //     OfferToReceiveAudio: true,
+            //     OfferToReceiveVideo: true
+            // };
 
             connection.onstream = function (event) {
               const video = event.mediaElement;
@@ -135,7 +146,7 @@
 
         mounted() {
           console.log("mounted");
-          this.init();
+          // this.connect();
         },
       });
     </script>
