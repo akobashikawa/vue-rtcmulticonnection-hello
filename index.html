@@ -36,6 +36,10 @@
       <b-container fluid="md">
         <h2>Vue RTCMultiConnection Hello</h2>
 
+        <b-input-group prepend="SocketURL">
+          <b-select v-model="socketURL" :options="servers"></b-select>
+        </b-input-group>
+
         <b-input-group prepend="Room">
           <b-form-input type="text" placeholder="Room ID" v-model="roomId"></b-form-input>
           <b-input-group-append>
@@ -72,9 +76,15 @@
         el: "#app",
 
         data: {
+          servers: [
+            {value: 'https://rtmulticonnection.herokuapp.com:443/', text: 'https://rtcmulticonnection.herokuapp.com:443/'},
+            {value: 'https://rulokoba.me:9001/', text: 'https://rulokoba.me:9001/'},
+          ],
+          socketURL: 'https://rtmulticonnection.herokuapp.com:443/',
           connection: null,
           roomId: "algun-id-unico",
           showRoom: false,
+          showRemote: false,
         },
 
         methods: {
@@ -83,7 +93,7 @@
 
             const connection = (this.connection = new RTCMultiConnection());
             // connection.socketURL = "https://rtcmulticonnection.herokuapp.com:443/";
-            connection.socketURL = "https://rulokoba.me:9001/";
+            connection.socketURL = this.socketURL;
             connection.session = {
               audio: false,
               video: true,
