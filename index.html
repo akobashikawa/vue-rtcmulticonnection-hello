@@ -36,27 +36,36 @@
       <b-container fluid="md">
         <h2>Vue RTCMultiConnection Hello</h2>
 
-        <b-input-group prepend="SocketURL">
-          <b-select v-model="socketURL" :options="servers" :disabled="connection"></b-select>
-          <b-input-group-append>
-            <b-button variant="primary" @click="connect" :disabled="connection"> Conectar </b-button>
-            <b-button variant="danger" @click="reset" v-show="connection"> Reset </b-button>
-          </b-input-group-append>
-        </b-input-group>
+        <section class="simple" v-if="!dev">
 
-        <b-input-group prepend="Room" v-if="connection">
-          <b-form-input type="text" placeholder="Room ID" v-model="roomId"></b-form-input>
-          <b-input-group-append>
-            <b-button variant="primary" @click="openOrJoinRoom"> Entrar </b-button>
-          </b-input-group-append>
-        </b-input-group>
+        </section>
 
-        <b-row class="mt-4">
-          <b-col md="4" ref="videoBox" class="video-box">
-          </b-col>
-        </b-row>
+        <section class="dev" v-if="dev">
 
-        <pre>{{ videos }}</pre>
+          <b-input-group prepend="SocketURL">
+            <b-select v-model="socketURL" :options="servers" :disabled="connection"></b-select>
+            <b-input-group-append>
+              <b-button variant="primary" @click="connect" :disabled="connection"> Conectar </b-button>
+              <b-button variant="danger" @click="reloadWindow" v-show="connection"> Reset </b-button>
+            </b-input-group-append>
+          </b-input-group>
+  
+          <b-input-group prepend="Room" v-if="connection">
+            <b-form-input type="text" placeholder="Room ID" v-model="roomId"></b-form-input>
+            <b-input-group-append>
+              <b-button variant="primary" @click="openOrJoinRoom"> Entrar </b-button>
+            </b-input-group-append>
+          </b-input-group>
+  
+          <b-row class="mt-4">
+            <b-col md="4" ref="videoBox" class="video-box">
+            </b-col>
+          </b-row>
+  
+          <pre>{{ videos }}</pre>
+
+        </section>
+
       </b-container>
     </div>
 
@@ -75,13 +84,14 @@
         el: "#app",
 
         data: {
+          dev: false,
           servers: [
             {value: 'https://rtcmulticonnection.herokuapp.com:443/', text: 'https://rtcmulticonnection.herokuapp.com:443/'},
             {value: 'https://webrtcweb.com:9002/', text: 'https://webrtcweb.com:9002/'},
-            {value: 'https://rulokoba.me/rtcmcserver/', text: 'https://rulokoba.me/rtcmcserver/'},
+            {value: 'https://rulokoba.me:9001/', text: 'https://rulokoba.me:9001/'},
           ],
           // socketURL: 'https://rtcmulticonnection.herokuapp.com:443/',
-          socketURL: 'https://rulokoba.me/rtcmcserver/',
+          socketURL: 'https://rulokoba.me:9001/',
           connection: null,
           roomId: "algun-id-unico",
           videos: [],
@@ -94,9 +104,15 @@
         },
 
         methods: {
-          reset() {
+          init() {
+            console.log(this.getQueryParam('dev'));
+            this.dev = this.getQueryParam('dev');
+          },
+
+          reloadWindow() {
             window.location.reload(true);
           },
+
           connect() {
             const self = this;
 
@@ -120,7 +136,7 @@
 
               const video = event.mediaElement;
               console.log('onstream video', video, video.id);
-              self.videos.push(video);
+              self.videos.push('video');
               self.$refs["videoBox"].appendChild(video);
               console.log('onstream videos', self.videos);
 
@@ -149,14 +165,14 @@
           getQueryParam(name) {
             const paramsString = window.location.href.split('?');
             const searchParams = new URLSearchParams(paramsString[1]);
-            return searchParams.has('roomid') ? searchParams.get('roomid') : false;
+            return searchParams.has(name) ? searchParams.get(name) : false;
           },
 
         },  
 
         mounted() {
           console.log("mounted");
-          // this.connect();
+          this.init();
         },
       });
     </script>
