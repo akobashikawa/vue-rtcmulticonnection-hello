@@ -23,8 +23,11 @@
       .video-box video {
         width: 100%;
       }
-      .video-box video {
-        border-radius: 15px;
+      .local-video-box video {
+        border-radius: 15px 0;
+      }
+      .remote-video-box video {
+        border-radius: 0 15px;
       }
     </style>
   </head>
@@ -33,75 +36,35 @@
       <b-container fluid="md">
         <h2>Vue RTCMultiConnection Hello</h2>
 
-        <section class="dev" v-if="dev">
-          <b-input-group prepend="SocketURL">
-            <b-select
-              v-model="socketURL"
-              :options="servers"
-              :disabled="!!connection"
-            ></b-select>
-            <b-input-group-append>
-              <b-button
-                variant="primary"
-                @click="connect"
-                :disabled="!!connection"
-              >
-                Conectar
-              </b-button>
-              <b-button
-                variant="danger"
-                @click="reloadWindow"
-                v-show="!!connection"
-              >
-                Reiniciar
-              </b-button>
-            </b-input-group-append>
-          </b-input-group>
-        </section>
+        <b-input-group prepend="Room">
+          <b-form-input type="text" placeholder="Room ID" v-model="roomId"></b-form-input>
+          <b-input-group-append>
+            <b-button variant="primary" @click="openOrJoinRoom"> Entrar </b-button>
+          </b-input-group-append>
+        </b-input-group>
+        <div class="border rounded px-2 py-1">{{ toShare }}</div>
+        <div class="border rounded px-2 py-1">
+          {{ counter }}
+          <b-icon-person-square v-for="i of counter"></b-icon-person-square>
+        </div>
 
-        <section class="simple">
-          <b-input-group prepend="Room" v-if="!!connection">
-            <b-form-input
-              type="text"
-              placeholder="Room ID"
-              v-model="roomId"
-              :disabled="connected"
-            ></b-form-input>
-            <b-input-group-append>
-              <b-button variant="primary" @click="openOrJoinRoom" v-show="!connected">
-                Entrar
-              </b-button>
-              <b-button
-                variant="danger"
-                @click="reloadWindow"
-                v-show="connected"
-              >
-                Salir
-              </b-button>
-            </b-input-group-append>
-          </b-input-group>
-        </section>
+        <b-row class="mt-4" v-show="showRoom">
+          <b-col md="8">
+            <h3>Remoto</h3>
+            <div class="video-box remote-video-box" ref="remoteVideoBox"></div>
+          </b-col>
+          <b-col md="4">
+            <h3>Local</h3>
+            <div class="video-box local-video-box" ref="localVideoBox"></div>
+          </b-col>
+        </b-row>
 
-        <section v-if="counter > 0">
-          <p class="border rounded px-2">{{ toShare }}</p>
-          <p class="mt-2">
-            Conectados: {{ counter }} 
-            <b-icon-person-square v-for="i of counter"></b-icon-person-square>
-          </p>
-          <b-row class="mt-4">
-            <b-col md="6" ref="remoteVideoBox" class="video-box"></b-col>
-            <b-col md="6" ref="localVideoBox" class="video-box"></b-col>
-          </b-row>
-
-        </section>
-
-        <section>
-          <a href="https://test.webrtc.org/" target="_blank">Test de conexión</a>
-        </section>
       </b-container>
     </div>
 
-    <script src="//unpkg.com/vue@latest/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <script src="//unpkg.com/vue@latest/dist/vue.min.js"></script>
     <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
     <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
 
@@ -114,27 +77,10 @@
         el: "#app",
 
         data: {
-          dev: false,
-          servers: [
-            {
-              value: "https://rtcmulticonnection.herokuapp.com:443/",
-              text: "https://rtcmulticonnection.herokuapp.com:443/",
-            },
-            {
-              value: "https://webrtcweb.com:9002/",
-              text: "https://webrtcweb.com:9002/",
-            },
-            {
-              value: "https://rulokoba.me:9001/",
-              text: "https://rulokoba.me:9001/",
-            },
-          ],
-          // socketURL: 'https://rtcmulticonnection.herokuapp.com:443/',
-          socketURL: "https://rulokoba.me:9001/",
           connection: null,
-          connected: false,
           roomId: "algun-id-unico",
-          videos: [],
+          showRoom: false,
+          roomId: '',
           counter: 0,
         },
 
@@ -144,65 +90,43 @@
           },
         },
 
-        watch: {
-          videos: function (newValue) {
-            console.log("watch", newValue);
-          },
-        },
-
         methods: {
+          getQueryParam(name) {
+            const paramsString = window.location.href.split("?");
+            const searchParams = new URLSearchParams(paramsString[1]);
+            return searchParams.has(name) ? searchParams.get(name) : false;
+          },
+
           init() {
+            const self = this;
+            console.log("refs", this.$refs);
+
             this.roomId = this.getQueryParam("roomid");
             console.log("getQueryParam('roomid'):", this.roomId);
-
-            this.dev = this.getQueryParam('dev');
-            console.log("getQueryParam('dev'):", this.dev)
-
-            if (!this.dev) {
-              this.connect();
-            }
-          },
-
-          reloadWindow() {
-            window.location.reload(true);
-          },
-
-          connect() {
-            const self = this;
 
             const connection = (this.connection = new RTCMultiConnection());
             connection.socketURL = "https://rtcmulticonnection.herokuapp.com:443/";
             // connection.socketURL = "https://rulokoba.me:9001/";
             connection.session = {
-              audio: true,
+              audio: false,
               video: true,
-            };
-
-            connection.sdpConstraints.mandatory = {
-                OfferToReceiveAudio: true,
-                OfferToReceiveVideo: true
             };
 
             connection.onstream = function (event) {
               console.log("onstream");
               self.counter++;
-
               const video = event.mediaElement;
 
               if (event.type === "local") {
                 console.log('Video: local');
-                self.connected = true;
                 self.$refs["localVideoBox"].appendChild(video);
               }
-
+              
               if (event.type === "remote") {
                 console.log('Video: remote');
                 self.$refs["remoteVideoBox"].appendChild(video);
               }
-            };
 
-            connection.onopen = function(event) {
-              console.log("onopen");
             };
 
             connection.onleave = function(event) {
@@ -216,13 +140,8 @@
           },
 
           openOrJoinRoom() {
+            this.showRoom = true;
             this.connection.openOrJoin(this.roomId);
-          },
-
-          getQueryParam(name) {
-            const paramsString = window.location.href.split("?");
-            const searchParams = new URLSearchParams(paramsString[1]);
-            return searchParams.has(name) ? searchParams.get(name) : false;
           },
         },
 
