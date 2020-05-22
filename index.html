@@ -37,9 +37,10 @@
         <h2>Vue RTCMultiConnection Hello</h2>
 
         <b-input-group prepend="Room">
-          <b-form-input type="text" placeholder="Room ID" v-model="roomId"></b-form-input>
+          <b-form-input type="text" placeholder="Room ID" v-model="roomId" :disabled="connected"></b-form-input>
           <b-input-group-append>
-            <b-button variant="primary" @click="openOrJoinRoom"> Entrar </b-button>
+            <b-button variant="primary" @click="openOrJoinRoom" v-show="!connected"> Entrar </b-button>
+            <b-button variant="warning" @click="reloadWindow" v-show="connected"> Salir </b-button>
           </b-input-group-append>
         </b-input-group>
         <div class="border rounded px-2 py-1">{{ toShare }}</div>
@@ -48,7 +49,7 @@
           <b-icon-person-square v-for="i of counter"></b-icon-person-square>
         </div>
 
-        <b-row class="mt-4" v-show="showRoom">
+        <b-row class="mt-4" v-show="connected">
           <b-col md="8">
             <h3>Remoto</h3>
             <div class="video-box remote-video-box" ref="remoteVideoBox"></div>
@@ -79,7 +80,7 @@
         data: {
           connection: null,
           roomId: "algun-id-unico",
-          showRoom: false,
+          connected: false,
           roomId: '',
           counter: 0,
         },
@@ -95,6 +96,10 @@
             const paramsString = window.location.href.split("?");
             const searchParams = new URLSearchParams(paramsString[1]);
             return searchParams.has(name) ? searchParams.get(name) : false;
+          },
+
+          reloadWindow() {
+            window.location.reload(true);
           },
 
           init() {
@@ -140,7 +145,7 @@
           },
 
           openOrJoinRoom() {
-            this.showRoom = true;
+            this.connected = true;
             this.connection.openOrJoin(this.roomId);
           },
         },
