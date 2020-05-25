@@ -6,6 +6,8 @@ var app = new Vue({
 
   data: {
     socketurl: '',
+    turnServerUsername: '',
+    turnServerPassword: '',
     connection: null,
     roomId: "algun-id-unico",
     connected: false,
@@ -19,6 +21,12 @@ var app = new Vue({
       let result = `${url.origin}${url.pathname}?roomid=${this.roomId}`;
       if (this.socketURL) {
         result += `&socketurl=${this.socketURL}`;
+      }
+      if (this.turnServerUsername) {
+        result += `&turnuser=${this.turnServerUsername}`;
+      }
+      if (this.turnServerPassword) {
+        result += `&turnpass=${this.turnServerPassword}`;
       }
       return result;
     },
@@ -47,6 +55,7 @@ var app = new Vue({
       connection.socketURL = this.socketURL || config.socketURL;
       // connection.socketURL = "https://rtcmulticonnection.herokuapp.com:443/";
       // connection.socketURL = "https://rulokoba.me:9001/";
+      console.log("connection.socketURL", connection.socketURL);
       connection.session = {
         audio: false,
         video: true,
@@ -54,14 +63,24 @@ var app = new Vue({
 
       // https://www.rtcmulticonnection.org/docs/iceServers/
       connection.iceServers = [];
+      console.log("stunServerConfig", {
+        urls: config.stunServerURL,
+      });
       connection.iceServers.push({
         urls: config.stunServerURL,
       });
 
+      this.turnServerUsername = this.getQueryParam("turnuser");
+      this.turnServerPassword = this.getQueryParam("turnpass");
+      console.log("turnServerConfig", {
+        urls: config.turnServerURL,
+        username: this.turnServerUsername || config.turnServerUsername,
+        credential: this.turnServerPassword || config.turnServerPassword,
+      });
       connection.iceServers.push({
         urls: config.turnServerURL,
-        credential: config.iceServerPassword,
-        username: config.iceServerUsername,
+        username: this.turnServerUsername || config.turnServerUsername,
+        credential: this.turnServerPassword || config.turnServerPassword,
       });
 
       connection.onstream = function (event) {
