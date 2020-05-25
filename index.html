@@ -37,10 +37,27 @@
         <h2>Vue RTCMultiConnection Hello</h2>
 
         <b-input-group prepend="Room">
-          <b-form-input type="text" placeholder="Room ID" v-model="roomId" :disabled="connected"></b-form-input>
+          <b-form-input
+            type="text"
+            placeholder="Room ID"
+            v-model="roomId"
+            :disabled="connected"
+          ></b-form-input>
           <b-input-group-append>
-            <b-button variant="primary" @click="openOrJoinRoom" v-show="!connected"> Entrar </b-button>
-            <b-button variant="warning" @click="reloadWindow" v-show="connected"> Salir </b-button>
+            <b-button
+              variant="primary"
+              @click="openOrJoinRoom"
+              v-show="!connected"
+            >
+              Entrar
+            </b-button>
+            <b-button
+              variant="warning"
+              @click="reloadWindow"
+              v-show="connected"
+            >
+              Salir
+            </b-button>
           </b-input-group-append>
         </b-input-group>
         <div class="border rounded px-2 py-1">{{ toShare }}</div>
@@ -59,7 +76,6 @@
             <div class="video-box local-video-box" ref="localVideoBox"></div>
           </b-col>
         </b-row>
-
       </b-container>
     </div>
 
@@ -72,89 +88,9 @@
     <script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
     <script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
 
+    <script type="module" src="js/main.js"></script>
+
     <script>
-      // https://www.rtcmulticonnection.org/docs/getting-started/
-      var app = new Vue({
-        el: "#app",
-
-        data: {
-          connection: null,
-          roomId: "algun-id-unico",
-          connected: false,
-          roomId: '',
-          counter: 0,
-        },
-
-        computed: {
-          toShare() {
-            return `${window.origin}?roomid=${this.roomId}`;
-          },
-        },
-
-        methods: {
-          getQueryParam(name) {
-            const paramsString = window.location.href.split("?");
-            const searchParams = new URLSearchParams(paramsString[1]);
-            return searchParams.has(name) ? searchParams.get(name) : false;
-          },
-
-          reloadWindow() {
-            window.location.reload(true);
-          },
-
-          init() {
-            const self = this;
-            console.log("refs", this.$refs);
-
-            this.roomId = this.getQueryParam("roomid");
-            console.log("getQueryParam('roomid'):", this.roomId);
-
-            const connection = (this.connection = new RTCMultiConnection());
-            connection.socketURL = "https://rtcmulticonnection.herokuapp.com:443/";
-            // connection.socketURL = "https://rulokoba.me:9001/";
-            connection.session = {
-              audio: false,
-              video: true,
-            };
-
-            connection.onstream = function (event) {
-              console.log("onstream");
-              self.counter++;
-              const video = event.mediaElement;
-
-              if (event.type === "local") {
-                console.log('Video: local');
-                self.$refs["localVideoBox"].appendChild(video);
-              }
-              
-              if (event.type === "remote") {
-                console.log('Video: remote');
-                self.$refs["remoteVideoBox"].appendChild(video);
-              }
-
-            };
-
-            connection.onleave = function(event) {
-              console.log("onleave");
-              if (self.counter > 0) {
-                self.counter--;
-              }
-            };
-
-            this.roomId = this.roomId || connection.token();
-          },
-
-          openOrJoinRoom() {
-            this.connected = true;
-            this.connection.openOrJoin(this.roomId);
-          },
-        },
-
-        mounted() {
-          console.log("mounted");
-          this.init();
-        },
-      });
     </script>
   </body>
 </html>
