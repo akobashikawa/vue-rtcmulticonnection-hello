@@ -70,6 +70,7 @@ var app = new Vue({
         urls: config.stunServerURL,
       });
 
+      /*
       this.turnServerUsername = this.getQueryParam("turnuser");
       this.turnServerPassword = this.getQueryParam("turnpass");
       console.log("turnServerConfig", {
@@ -82,6 +83,7 @@ var app = new Vue({
         username: this.turnServerUsername || config.turnServerUsername,
         credential: this.turnServerPassword || config.turnServerPassword,
       });
+      */
 
       connection.onstream = function (event) {
         console.log("onstream");
