@@ -106,15 +106,15 @@ var app = new Vue({
         if (event.type === "local") {
           console.log("Video: local");
           video.className += " local";
-          // self.$refs["localVideoBox"].appendChild(video);
+          self.$refs["localVideoBox"].appendChild(video);
         }
 
         if (event.type === "remote") {
           console.log("Video: remote");
           video.className += " remote";
-          // self.$refs["remoteVideoBox"].appendChild(video);
+          self.$refs["remoteVideoBox"].appendChild(video);
         }
-        self.$refs["videoBox"].appendChild(video);
+        // self.$refs["videoBox"].appendChild(video);
       };
 
       connection.onleave = function (event) {
