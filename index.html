@@ -24,11 +24,15 @@
     <style>
       .video-box {
         display: flex;
+        flex-direction: column;
       }
       .video-box video {
         width: 100%;
       }
       @media (min-width: 768px) {
+        .video-box {
+          flex-direction: row;
+        }
         .video-box video {
           width: 50%;
         }
