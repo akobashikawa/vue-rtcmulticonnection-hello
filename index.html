@@ -22,14 +22,31 @@
     />
 
     <style>
+      .video-box {
+        display: flex;
+      }
       .video-box video {
         width: 100%;
       }
-      .local-video-box video {
-        border-radius: 15px;
+      @media (min-width: 768px) {
+        .video-box video {
+          width: 50%;
+        }
       }
-      .remote-video-box video {
+      @media (min-width: 1024px) {
+        .video-box video {
+          width: 25%;
+        }
+      }
+      .video-box video.local {
         border-radius: 15px;
+        border: 2px solid cyan;
+        background-color: cyan;
+      }
+      .video-box video.remote {
+        border-radius: 15px;
+        border: 2px solid lime;
+        background-color: lime;
       }
     </style>
   </head>
@@ -37,9 +54,11 @@
     <div id="app">
 
       <b-navbar toggleable="lg" type="dark" variant="info">
-        <b-navbar-brand href="./">Vue RTCMultiConnection Video</b-navbar-brand>
-        <b-icon-person-square variant="white"></b-icon-person-square>
-        <b-badge variant="danger">{{ counter }}</b-badge>
+        <b-navbar-brand href="./">
+          Vue RTCMultiConnection Video
+          <b-icon-person-square variant="white"></b-icon-person-square>
+          <b-badge pill variant="danger" style="position: relative; top: -3px;">{{ counter }}</b-badge>
+        </b-navbar-brand>
 
         <b-input-group prepend="Sala" class="ml-2">
           <b-form-input
@@ -69,37 +88,27 @@
             >
               Compartir
             </b-button>
-            <b-button
-              variant="dark"
-              @click="$bvModal.show('bv-help')"
-            >
-              Ayuda
-            </b-button>
           </b-input-group-append>
         </b-input-group>
       </b-navbar>
       
       <b-container fluid="md">
         <div v-show="connected">
-          <div class="remote">
-            <h3>Remoto</h3>
-            <div class="video-box remote-video-box" ref="remoteVideoBox"></div>
-          </div>
-          <div class="local">
-            <h3>Local</h3>
-            <div class="video-box local-video-box" ref="localVideoBox"></div>
-          </div>
+          <span class="remote">
+            <span class="video-box remote-video-box" ref="remoteVideoBox"></span>
+          </span>
+          <span class="local">
+            <span class="video-box local-video-box" ref="localVideoBox"></span>
+          </span>
+          <div class="video-box" ref="videoBox"></div>
         </div>
       </b-container>
 
       <b-modal id="bv-share" title="Invitación">
-        <p class="my-4">Copia este link a quien quieras invitar:</p>
-        <p class="border round p-2 bg-success text-white">{{ toShare }}</p>
-      </b-modal>
-
-      <b-modal id="bv-help" title="Esta app">
-        <p class="my-4">Demo desarrollada con Vue y la tecnología WebRTC</p>
         <p class="my-4">Puedes comunicarte por video con los que compartas el link de esta sala.</p>
+        <p class="my-4">Comparte este link a quien quieras invitar:</p>
+        <p class="border round p-2 bg-success text-white">{{ toShare }}</p>
+        <p class="my-4">Demo desarrollada con Vue y la tecnología WebRTC</p>
         <p class="my-4">
           <a href="akobashikawa@gmail.com?subject=[vue-rtcmc-hello]&body=Mi comentario o sugerencia:" target="_blank">Puedes enviarme por email tus comentarios y sugerencias</a>
         </p>

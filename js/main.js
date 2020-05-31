@@ -64,7 +64,7 @@ var app = new Vue({
       connection.applyConstraints({
         video: constraints,
       });
-      
+
       this.socketURL = this.getQueryParam("socketurl");
       connection.socketURL = this.socketURL || config.socketURL;
       // connection.socketURL = "https://rtcmulticonnection.herokuapp.com:443/";
@@ -105,13 +105,16 @@ var app = new Vue({
 
         if (event.type === "local") {
           console.log("Video: local");
-          self.$refs["localVideoBox"].appendChild(video);
+          video.className += " local";
+          // self.$refs["localVideoBox"].appendChild(video);
         }
 
         if (event.type === "remote") {
           console.log("Video: remote");
-          self.$refs["remoteVideoBox"].appendChild(video);
+          video.className += " remote";
+          // self.$refs["remoteVideoBox"].appendChild(video);
         }
+        self.$refs["videoBox"].appendChild(video);
       };
 
       connection.onleave = function (event) {
