@@ -57,18 +57,23 @@
               Entrar
             </b-button>
             <b-button
-              variant="success"
-              @click="$bvModal.show('bv-share')"
-              v-show="!connected"
-            >
-              Compartir
-            </b-button>
-            <b-button
-              variant="warning"
+              variant="danger"
               @click="reloadWindow"
               v-show="connected"
             >
               Salir
+            </b-button>
+            <b-button
+              variant="success"
+              @click="$bvModal.show('bv-share')"
+            >
+              Compartir
+            </b-button>
+            <b-button
+              variant="dark"
+              @click="$bvModal.show('bv-help')"
+            >
+              Ayuda
             </b-button>
           </b-input-group-append>
         </b-input-group>
@@ -90,6 +95,14 @@
       <b-modal id="bv-share" title="Invitación">
         <p class="my-4">Copia este link a quien quieras invitar:</p>
         <p class="border round p-2 bg-success text-white">{{ toShare }}</p>
+      </b-modal>
+
+      <b-modal id="bv-help" title="Esta app">
+        <p class="my-4">Demo desarrollada con Vue y la tecnología WebRTC</p>
+        <p class="my-4">Puedes comunicarte por video con los que compartas el link de esta sala.</p>
+        <p class="my-4">
+          <a href="akobashikawa@gmail.com?subject=[vue-rtcmc-hello]&body=Mi comentario o sugerencia:" target="_blank">Puedes enviarme por email tus comentarios y sugerencias</a>
+        </p>
       </b-modal>
 
     </div>
