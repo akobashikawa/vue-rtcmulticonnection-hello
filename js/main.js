@@ -63,12 +63,13 @@ var app = new Vue({
 
       // https://www.rtcmulticonnection.org/docs/iceServers/
       connection.iceServers = [];
-      console.log("stunServerConfig", {
-        urls: config.stunServerURL,
-      });
-      connection.iceServers.push({
-        urls: config.stunServerURL,
-      });
+      const stunServers = config.stunServers || [];
+      for (let server of stunServers) {
+        console.log("stunServer", server);
+        connection.iceServers.push({
+          urls: server,
+        });
+      }
 
       this.turnServerUsername = this.getQueryParam("turnuser");
       this.turnServerPassword = this.getQueryParam("turnpass");
