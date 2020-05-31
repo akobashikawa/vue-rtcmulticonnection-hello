@@ -50,7 +50,21 @@ var app = new Vue({
       this.roomId = this.getQueryParam("roomid");
       console.log("getQueryParam('roomid'):", this.roomId);
 
+      const supports = navigator.mediaDevices.getSupportedConstraints();
+      var constraints = {};
+      if (supports.width && supports.height) {
+        constraints = {
+          width: config.width || 640,
+          height: config.height || 480,
+        };
+      }
+
       const connection = (this.connection = new RTCMultiConnection());
+
+      connection.applyConstraints({
+        video: constraints,
+      });
+      
       this.socketURL = this.getQueryParam("socketurl");
       connection.socketURL = this.socketURL || config.socketURL;
       // connection.socketURL = "https://rtcmulticonnection.herokuapp.com:443/";

@@ -26,10 +26,10 @@
         width: 100%;
       }
       .local-video-box video {
-        border-radius: 15px 0;
+        border-radius: 15px;
       }
       .remote-video-box video {
-        border-radius: 0 15px;
+        border-radius: 15px;
       }
     </style>
   </head>
@@ -80,16 +80,16 @@
       </b-navbar>
       
       <b-container fluid="md">
-        <b-row class="mt-4" v-show="connected">
-          <b-col md="8">
+        <div v-show="connected">
+          <div class="remote">
             <h3>Remoto</h3>
             <div class="video-box remote-video-box" ref="remoteVideoBox"></div>
-          </b-col>
-          <b-col md="4">
+          </div>
+          <div class="local">
             <h3>Local</h3>
             <div class="video-box local-video-box" ref="localVideoBox"></div>
-          </b-col>
-        </b-row>
+          </div>
+        </div>
       </b-container>
 
       <b-modal id="bv-share" title="Invitación">

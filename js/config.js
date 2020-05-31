@@ -10,5 +10,7 @@ const config = {
   turnServerURL: "turn:numb.viagenie.ca",
   turnServerUsername: "akobashikawa@gmail.com",
   turnServerPassword: "*N70m0d4ch13",
+  width: 640,
+  heigth: 480,
 };
 export default config;
