@@ -58,12 +58,13 @@ var app = new Vue({
           height: config.height || 480,
         };
       }
+      console.log("constraints", constraints);
 
       const connection = (this.connection = new RTCMultiConnection());
 
-      connection.applyConstraints({
-        video: constraints,
-      });
+      // connection.applyConstraints({
+      //   video: constraints,
+      // });
 
       this.socketURL = this.getQueryParam("socketurl");
       connection.socketURL = this.socketURL || config.socketURL;
