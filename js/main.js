@@ -1,13 +1,16 @@
 import config from './config.js';
+import Clock from "./clock.js";
 
 // https://www.rtcmulticonnection.org/docs/getting-started/
 var app = new Vue({
   el: "#app",
 
+  components: { Clock },
+
   data: {
-    socketurl: '',
-    turnServerUsername: '',
-    turnServerPassword: '',
+    socketurl: "",
+    turnServerUsername: "",
+    turnServerPassword: "",
     connection: null,
     roomId: "algun-id-unico",
     connected: false,
@@ -18,7 +21,7 @@ var app = new Vue({
   computed: {
     toShare() {
       const url = window.location;
-      let result = `${url.origin}${url.pathname}?roomid=${this.roomId}`;
+      let result = `${url.origin}${url.pathname}?roomid=${this.roomId}&start=1`;
       if (this.socketURL) {
         result += `&socketurl=${this.socketURL}`;
       }
@@ -40,7 +43,8 @@ var app = new Vue({
     },
 
     reloadWindow() {
-      window.location.reload(true);
+      const url = window.location;
+      window.location.href = `${url.origin}${url.pathname}?roomid=${this.roomId}&start=0`;
     },
 
     init() {
@@ -135,7 +139,12 @@ var app = new Vue({
   },
 
   mounted() {
-    console.log("mounted");
+    console.log("mounted");    
     this.init();
+    const start = this.getQueryParam("start");
+    if (start=='1') {
+      console.log('start');
+      this.openOrJoinRoom();
+    }
   },
 });

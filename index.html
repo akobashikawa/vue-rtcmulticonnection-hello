@@ -22,6 +22,9 @@
     />
 
     <style>
+      [v-cloak] > * { display:none }
+      [v-cloak]::before { content: ". . ." }
+
       .video-box {
         display: flex;
         flex-direction: column;
@@ -29,53 +32,49 @@
       .video-box video {
         width: 100%;
       }
+      .video-box video.local {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+      .video-box video.remote {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
       @media (min-width: 768px) {
         .video-box {
           flex-direction: row;
         }
         .video-box video {
-          width: 50%;
-        }
-      }
-      @media (min-width: 1024px) {
-        .video-box video {
           width: 25%;
         }
-      }
-      .video-box video.local {
-        border-radius: 15px;
-        border: 2px solid cyan;
-        background-color: cyan;
-      }
-      .video-box video.remote {
-        border-radius: 15px;
-        border: 2px solid lime;
-        background-color: lime;
       }
     </style>
   </head>
   <body>
-    <div id="app">
+    <div id="app" v-cloak>
 
-      <b-navbar toggleable="lg" type="dark" variant="info">
-        <b-navbar-brand href="./">
-          Vue RTCMultiConnection Video
-          <b-icon-person-square variant="white"></b-icon-person-square>
-          <b-badge pill variant="danger" style="position: relative; top: -3px;">{{ counter }}</b-badge>
-        </b-navbar-brand>
+      <b-navbar toggleable="lg" type="dark" variant="info" fixed="top">
+        <b-navbar-brand href="#" @click="$bvModal.show('bv-share')" v-show="!connected"> Vue WebVideo </b-navbar-brand>
+        <b-navbar-brand href="#" @click="$bvModal.show('bv-share')" v-show="connected"> {{ roomId }} </b-navbar-brand>
 
-        <b-input-group prepend="Sala" class="ml-2">
-          <b-form-input
-            type="text"
-            placeholder="ID de la sala"
-            v-model="roomId"
-            :disabled="connected"
-          ></b-form-input>
-          <b-input-group-append>
+        <b-navbar-nav class="mx-2">
+          <b-nav-text>
+            <b-icon-person-square variant="white"></b-icon-person-square>
+            <b-badge pill variant="danger">{{ counter }}</b-badge>
+          </b-nav-text>
+        </b-navbar-nav>
+
+        <b-navbar-nav class="mx-2">
+          <b-nav-text>
+            <clock></clock>
+          </b-nav-text>
+        </b-navbar-nav>
+
+        <b-navbar-nav class="mx-2">
+          <b-nav-text>
             <b-button
               variant="primary"
               @click="openOrJoinRoom"
               v-show="!connected"
+              size="sm"
             >
               Entrar
             </b-button>
@@ -83,29 +82,19 @@
               variant="danger"
               @click="reloadWindow"
               v-show="connected"
+              size="sm"
             >
               Salir
             </b-button>
-            <b-button
-              variant="success"
-              @click="$bvModal.show('bv-share')"
-              v-show="connected"
-            >
-              Compartir
-            </b-button>
-          </b-input-group-append>
-        </b-input-group>
+          </b-nav-text>
+        </b-navbar-nav>
+
       </b-navbar>
       
-      <b-container fluid="md">
+      <b-container fluid style="margin-top:70px;">
         <div v-show="connected">
-          <span class="remote">
-            <span class="video-box remote-video-box" ref="remoteVideoBox"></span>
-          </span>
-          <span class="local">
-            <span class="video-box local-video-box" ref="localVideoBox"></span>
-          </span>
-          <div class="video-box" ref="videoBox"></div>
+          <span class="video-box remote-video-box" ref="remoteVideoBox"></span>
+          <span class="video-box local-video-box" ref="localVideoBox"></span>
         </div>
       </b-container>
 
@@ -126,6 +115,8 @@
     <script src="//unpkg.com/vue@latest/dist/vue.min.js"></script>
     <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
     <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+
+    <script src="//unpkg.com/moment/moment.js"></script>
 
     <script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
     <script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
